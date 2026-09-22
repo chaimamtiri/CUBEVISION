@@ -1,13 +1,14 @@
 import { Color } from './color';
 import { Face, createSolvedFace } from './face.model';
+import { rotateFaceClockwise } from './rotate-face';
 
 export class Cube {
-  U: Face; // Up    - blanc
-  D: Face; // Down  - jaune
-  L: Face; // Left  - orange
-  R: Face; // Right - rouge
-  F: Face; // Front - vert
-  B: Face; // Back  - bleu
+  U: Face;
+  D: Face;
+  L: Face;
+  R: Face;
+  F: Face;
+  B: Face;
 
   constructor() {
     this.U = createSolvedFace('WHITE');
@@ -29,5 +30,36 @@ export class Cube {
       copy[key] = { color: [...this[key].color] };
     });
     return copy;
+  }
+
+  moveR(): void {
+    // 1. La face R tourne sur elle-même
+    this.R.color = rotateFaceClockwise(this.R.color);
+
+    // 2. Les colonnes adjacentes tournent : U → B → D → F → U
+    const uCol = [this.U.color[2], this.U.color[5], this.U.color[8]];
+    const fCol = [this.F.color[2], this.F.color[5], this.F.color[8]];
+    const dCol = [this.D.color[2], this.D.color[5], this.D.color[8]];
+    const bCol = [this.B.color[0], this.B.color[3], this.B.color[6]];
+
+    // U prend l'ancienne colonne de F
+    this.U.color[2] = fCol[0];
+    this.U.color[5] = fCol[1];
+    this.U.color[8] = fCol[2];
+
+    // F prend l'ancienne colonne de D
+    this.F.color[2] = dCol[0];
+    this.F.color[5] = dCol[1];
+    this.F.color[8] = dCol[2];
+
+    // D prend l'ancienne colonne de B (inversée, car B est vue "de dos")
+    this.D.color[2] = bCol[2];
+    this.D.color[5] = bCol[1];
+    this.D.color[8] = bCol[0];
+
+    // B prend l'ancienne colonne de U (inversée)
+    this.B.color[0] = uCol[2];
+    this.B.color[3] = uCol[1];
+    this.B.color[6] = uCol[0];
   }
 }
