@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Cube } from '../../models/cube.model';
 import { Color } from '../../models/color';
+import { validateCube, ValidationResult } from '../../models/cube-validator';
 
 const COLOR_CYCLE: Color[] = ['WHITE', 'YELLOW', 'RED', 'ORANGE', 'BLUE', 'GREEN'];
 
@@ -27,6 +28,7 @@ export class CubeNetComponent {
   @Input({ required: true }) cube!: Cube;
 
   readonly faceKeys: FaceKey[] = ['U', 'D', 'L', 'R', 'F', 'B'];
+  validationResult: ValidationResult | null = null;
 
   colorHex(color: Color): string {
     return COLOR_HEX[color];
@@ -36,5 +38,10 @@ export class CubeNetComponent {
     const current = this.cube[face].color[index];
     const nextIndex = (COLOR_CYCLE.indexOf(current) + 1) % COLOR_CYCLE.length;
     this.cube[face].color[index] = COLOR_CYCLE[nextIndex];
+    this.validationResult = null; // on efface le résultat précédent dès qu'on retouche le cube
+  }
+
+  onValidate(): void {
+    this.validationResult = validateCube(this.cube);
   }
 }
