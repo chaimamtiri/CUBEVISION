@@ -1,0 +1,38 @@
+<div class="cube-net">
+  <div class="face face-u">
+    <div
+      *ngFor="let color of cube.U.color; let i = index"
+      class="cell"
+      [style.background]="colorHex(color)"
+      (click)="onCellClick('U', i)"
+    ></div>
+  </div>
+
+  <div class="middle-row">
+    <div class="face face-l">
+      <div *ngFor="let color of cube.R.color; let i = index" class="cell"
+           [style.background]="colorHex(color)" (click)="onCellClick('R', i)"></div>
+    </div>
+    <div class="face face-f">
+      <div *ngFor="let color of cube.L.color; let i = index" class="cell"
+           [style.background]="colorHex(color)" (click)="onCellClick('L', i)"></div>
+    </div>
+    <div class="face face-r">
+      <div *ngFor="let color of cube.B.color; let i = index" class="cell"
+           [style.background]="colorHex(color)" (click)="onCellClick('B', i)"></div>
+    </div>
+    <div class="face face-b">
+      <div *ngFor="let color of cube.F.color; let i = index" class="cell"
+           [style.background]="colorHex(color)" (click)="onCellClick('F', i)"></div>
+    </div>
+  </div>
+
+  <div class="face face-d">
+    <div
+      *ngFor="let color of cube.D.color; let i = index"
+      class="cell"
+      [style.background]="colorHex(color)"
+      (click)="onCellClick('D', i)"
+    ></div>
+  </div>
+</div>

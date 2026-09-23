@@ -1,0 +1,69 @@
+
+:host {
+	display: block;
+	padding: 2rem;
+}
+
+.cube-net {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(4rem, 8rem));
+	grid-template-rows: repeat(3, auto);
+	gap: 0.5rem;
+	width: fit-content;
+	margin: 0 auto;
+}
+
+.face {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	aspect-ratio: 1;
+	gap: 0.2rem;
+}
+
+.face-u,
+.face-d {
+	grid-column: 2;
+}
+
+.face-u {
+	grid-row: 1;
+}
+
+.face-d {
+	grid-row: 3;
+}
+
+.middle-row {
+	grid-column: 1 / -1;
+	grid-row: 2;
+	display: grid;
+	grid-template-columns: repeat(4, minmax(4rem, 8rem));
+	gap: 0.5rem;
+}
+
+.middle-row .face-l {
+	grid-column: 1;
+	grid-row: 1;
+}
+
+.middle-row .face-f {
+	grid-column: 3;
+	grid-row: 1;
+}
+
+.middle-row .face-r {
+	grid-column: 4;
+	grid-row: 1;
+}
+
+.middle-row .face-b {
+	grid-column: 2;
+	grid-row: 1;
+}
+
+.cell {
+	min-width: 1rem;
+	min-height: 1rem;
+	border: 2px solid #222;
+	cursor: pointer;
+}
