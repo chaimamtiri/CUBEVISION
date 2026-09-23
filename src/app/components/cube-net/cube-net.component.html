@@ -35,4 +35,12 @@
       (click)="onCellClick('D', i)"
     ></div>
   </div>
+
+    <div class="validation-zone">
+    <button (click)="onValidate()">Valider</button>
+    <p *ngIf="validationResult" [class.valid]="validationResult.valid" [class.invalid]="!validationResult.valid">
+      {{ validationResult.message }}
+    </p>
+  </div>
+  
 </div>

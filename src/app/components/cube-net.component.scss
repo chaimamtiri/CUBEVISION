@@ -67,3 +67,33 @@
 	border: 2px solid #222;
 	cursor: pointer;
 }
+
+.validation-zone {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    background: #333;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+
+    &:hover {
+      background: #555;
+    }
+  }
+
+  p {
+    font-weight: 600;
+    margin: 0;
+
+    &.valid { color: #2e7d32; }
+    &.invalid { color: #c62828; }
+  }
+}

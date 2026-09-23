@@ -15,10 +15,12 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  it('should render the cube net', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
+    fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, cubevision');
+    expect(compiled.querySelector('app-cube-net')).toBeTruthy();
+    expect(compiled.querySelectorAll('.cell')).toHaveLength(54);
   });
 });
