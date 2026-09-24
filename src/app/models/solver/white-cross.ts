@@ -30,3 +30,17 @@ export function solveWhiteGreenEdgeCase1(cube: Cube, solution: Move[]): boolean 
   }
   return false;
 }
+
+// Cas 2 : arête blanc-vert coincée en couche du milieu, entre F et R
+// (vert visible sur F[5], blanc visible sur R[3])
+// Un seul quart de tour R suffit à l'extraire vers la couche du haut
+export function ejectMiddleLayerEdgeFR(cube: Cube, solution: Move[]): boolean {
+  const greenOnF = cube.F.color[5] === 'GREEN';
+  const whiteOnR = cube.R.color[3] === 'WHITE';
+
+  if (greenOnF && whiteOnR) {
+    applyMove(cube, 'R', solution);
+    return true;
+  }
+  return false;
+}

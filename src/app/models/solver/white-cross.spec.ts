@@ -1,5 +1,6 @@
 import { Cube } from '../cube.model';
 import { Move } from '../move.util';
+import { ejectMiddleLayerEdgeFR } from './white-cross';
 import { isWhiteCrossSolved, solveWhiteGreenEdgeCase1 } from './white-cross';
 
 describe('solveWhiteGreenEdgeCase1', () => {
@@ -17,5 +18,24 @@ describe('solveWhiteGreenEdgeCase1', () => {
     expect(solution).toEqual(['F2']);
     expect(cube.U.color[7]).toBe('WHITE');
     expect(cube.F.color[1]).toBe('GREEN');
+  });
+});
+
+
+
+describe('ejectMiddleLayerEdgeFR', () => {
+  it('extrait une arête blanc-vert de la couche du milieu vers la couche du haut', () => {
+    const cube = new Cube();
+    cube.F.color[5] = 'GREEN';
+    cube.R.color[3] = 'WHITE';
+
+    const solution: Move[] = [];
+    const handled = ejectMiddleLayerEdgeFR(cube, solution);
+
+    expect(handled).toBe(true);
+    expect(solution).toEqual(['R']);
+    // L'arête doit maintenant être sur U-R, blanc sur le côté
+    expect(cube.U.color[5]).toBe('GREEN');
+    expect(cube.R.color[1]).toBe('WHITE');
   });
 });
