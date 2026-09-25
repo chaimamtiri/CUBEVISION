@@ -64,3 +64,60 @@ export function solveCrossEdge(cube: Cube, side: SideConfig, solution: Move[]): 
   if (solveEdgeMisorientedAdjacent(cube, side, solution)) return true;
   return false; // il reste des cas qu'on n'a pas encore couverts (voir plus bas)
 }
+
+export interface SolveResult {
+  success: boolean;
+  solution: Move[];
+}
+
+export function solveWhiteCross(cube: Cube): SolveResult {
+  const solution: Move[] = [];
+  const maxIterations = 50; // large marge de sécurité contre une boucle infinie
+
+  for (let i = 0; i < maxIterations; i++) {
+    if (isWhiteCrossSolved(cube)) {
+      return { success: true, solution };
+    }
+
+    let progressed = false;
+    for (const side of Object.values(SIDES)) {
+      if (!isEdgeSolved(cube, side)) {
+        const handled = solveCrossEdge(cube, side, solution);
+        if (handled) {
+          progressed = true;
+          break; // on retraite l'état depuis le début après chaque mouvement
+        }
+      }
+    }
+
+    if (!progressed) {
+      // Aucune des 4 arêtes n'a pu être résolue avec les cas connus → on s'arrête honnêtement
+      return { success: false, solution };
+    }
+  }
+
+  return { success: false, solution };
+}
+
+describe('EXPLORATION - état au blocage', () => {
+  it('affiche le cube complet après blocage du solveur', () => {
+    const cube = new Cube();
+    cube.moveR();
+    cube.moveU();
+    cube.moveFPrime();
+    cube.moveL2();
+    cube.moveD();
+    cube.moveB();
+
+    const result = solveWhiteCross(cube);
+    console.log('success:', result.success);
+    console.log('solution:', result.solution);
+
+    console.log('U:', cube.U.color);
+    console.log('D:', cube.D.color);
+    console.log('F:', cube.F.color);
+    console.log('R:', cube.R.color);
+    console.log('B:', cube.B.color);
+    console.log('L:', cube.L.color);
+  });
+});
