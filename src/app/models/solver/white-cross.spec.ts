@@ -1,7 +1,6 @@
 import { Cube } from '../cube.model';
 import { Move } from '../move.util';
-import { ejectMiddleLayerEdgeFR } from './white-cross';
-import { isWhiteCrossSolved, solveWhiteGreenEdgeCase1 } from './white-cross';
+import { isWhiteCrossSolved, solveWhiteGreenEdgeCase1 , ejectMiddleLayerEdgeFR , flipTopLayerEdgeUR } from './white-cross';
 
 describe('solveWhiteGreenEdgeCase1', () => {
   it('place correctement une arête blanc-vert située sur D, touchant F', () => {
@@ -37,5 +36,37 @@ describe('ejectMiddleLayerEdgeFR', () => {
     // L'arête doit maintenant être sur U-R, blanc sur le côté
     expect(cube.U.color[5]).toBe('GREEN');
     expect(cube.R.color[1]).toBe('WHITE');
+  });
+});
+
+describe('EXPLORATION - retourner une arête U-R mal orientée', () => {
+  it('teste F\' U\' F sur une arête blanc-vert avec blanc sur le côté (U5=green, R1=white)', () => {
+    const cube = new Cube();
+    cube.U.color[5] = 'GREEN';
+    cube.R.color[1] = 'WHITE';
+
+    cube.moveFPrime();
+    cube.moveUPrime();
+    cube.moveF();
+
+    console.log('U[7]:', cube.U.color[7]); // on espère 'white' (la nouvelle position finale U-F)
+    console.log('F[1]:', cube.F.color[1]); // on espère 'green'
+  });
+});
+ 
+
+describe('flipTopLayerEdgeUR', () => {
+  it('retourne une arête U-R mal orientée et la place entre U et F', () => {
+    const cube = new Cube();
+    cube.U.color[5] = 'GREEN';
+    cube.R.color[1] = 'WHITE';
+
+    const solution: Move[] = [];
+    const handled = flipTopLayerEdgeUR(cube, solution);
+
+    expect(handled).toBe(true);
+    expect(solution).toEqual(["F'", "U'", 'F']);
+    expect(cube.U.color[7]).toBe('WHITE');
+    expect(cube.F.color[1]).toBe('GREEN');
   });
 });

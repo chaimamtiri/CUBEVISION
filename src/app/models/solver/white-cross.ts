@@ -44,3 +44,20 @@ export function ejectMiddleLayerEdgeFR(cube: Cube, solution: Move[]): boolean {
   }
   return false;
 }
+
+
+// Cas 3 : arête blanc-vert sur la couche du haut, mais mal orientée
+// (vert visible sur U[5], blanc visible sur R[1])
+// F' U' F la retourne et la place définitivement entre U et F
+export function flipTopLayerEdgeUR(cube: Cube, solution: Move[]): boolean {
+  const greenOnU = cube.U.color[5] === 'GREEN';
+  const whiteOnR = cube.R.color[1] === 'WHITE';
+
+  if (greenOnU && whiteOnR) {
+    applyMove(cube, "F'", solution);
+    applyMove(cube, "U'", solution);
+    applyMove(cube, 'F', solution);
+    return true;
+  }
+  return false;
+}
