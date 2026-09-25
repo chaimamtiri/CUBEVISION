@@ -170,18 +170,18 @@ export class Cube {
   // ===== B =====
 
   moveB(): void {
-    this.B.color = rotateFaceClockwise(this.B.color);
+  this.B.color = rotateFaceClockwise(this.B.color);
 
-    const uRow = [this.U.color[0], this.U.color[1], this.U.color[2]];
-    const lCol = [this.L.color[0], this.L.color[3], this.L.color[6]];
-    const dRow = [this.D.color[6], this.D.color[7], this.D.color[8]];
-    const rCol = [this.R.color[2], this.R.color[5], this.R.color[8]];
+  const uRow = [this.U.color[0], this.U.color[1], this.U.color[2]];
+  const lCol = [this.L.color[0], this.L.color[3], this.L.color[6]];
+  const dRow = [this.D.color[6], this.D.color[7], this.D.color[8]];
+  const rCol = [this.R.color[2], this.R.color[5], this.R.color[8]];
 
-    this.L.color[0] = uRow[2]; this.L.color[3] = uRow[1]; this.L.color[6] = uRow[0];
-    this.D.color[6] = lCol[2]; this.D.color[7] = lCol[1]; this.D.color[8] = lCol[0];
-    this.R.color[2] = dRow[0]; this.R.color[5] = dRow[1]; this.R.color[8] = dRow[2];
-    this.U.color[0] = rCol[2]; this.U.color[1] = rCol[1]; this.U.color[2] = rCol[0];
-  }
+  this.L.color[0] = uRow[2]; this.L.color[3] = uRow[1]; this.L.color[6] = uRow[0];
+  this.D.color[6] = lCol[2]; this.D.color[7] = lCol[1]; this.D.color[8] = lCol[0];
+  this.R.color[2] = dRow[0]; this.R.color[5] = dRow[1]; this.R.color[8] = dRow[2];
+  this.U.color[0] = rCol[0]; this.U.color[1] = rCol[1]; this.U.color[2] = rCol[2];
+}
 
   moveBPrime(): void {
     this.moveB();
