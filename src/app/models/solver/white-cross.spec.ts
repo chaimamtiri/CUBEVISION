@@ -7,6 +7,9 @@ import {
   solveEdgeInMiddleLayer,
   solveEdgeMisorientedAdjacent,
   solveWhiteCross,
+  solveEdgeCorrectlyOrientedWrongSlot,
+  solveEdgeOnBottomAnywhere,
+  isEdgeSolved
 } from './white-cross';
 
 describe('isWhiteCrossSolved (générique)', () => {
@@ -112,5 +115,32 @@ describe('Cube - labeled round-trip incluant D et B (jamais testés ensemble jus
     expect(cube.R.color).toEqual(initial.R.color);
     expect(cube.F.color).toEqual(initial.F.color);
     expect(cube.B.color).toEqual(initial.B.color);
+  });
+});
+
+describe('solveEdgeCorrectlyOrientedWrongSlot', () => {
+  it('ramène une arête déjà orientée du slot R vers le slot F', () => {
+    const cube = new Cube();
+    cube.U.color[5] = 'WHITE';
+    cube.R.color[1] = 'GREEN';
+
+    const solution: Move[] = [];
+    expect(solveEdgeCorrectlyOrientedWrongSlot(cube, SIDES.F, solution)).toBe(true);
+    expect(solution).toEqual(["U'"]);
+    expect(cube.U.color[7]).toBe('WHITE');
+    expect(cube.F.color[1]).toBe('GREEN');
+  });
+});
+
+describe('solveEdgeOnBottomAnywhere', () => {
+  it('trouve une arête sous la mauvaise face et la remonte correctement', () => {
+    const cube = new Cube();
+    cube.D.color[1] = 'WHITE';
+    cube.F.color[7] = 'RED';
+
+    const solution: Move[] = [];
+    expect(solveEdgeOnBottomAnywhere(cube, SIDES.R, solution)).toBe(true);
+    expect(solution).toEqual(["D'", 'R2']);
+    expect(isEdgeSolved(cube, SIDES.R)).toBe(true);
   });
 });

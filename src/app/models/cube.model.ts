@@ -1,7 +1,6 @@
 import { Color } from './color';
 import { Face, createSolvedFace } from './face.model';
-import { rotateFaceClockwise } from './rotate-face';
-
+import { rotateFaceClockwise, rotateFaceCounterClockwise } from './rotate-face';
 export class Cube {
   U: Face;
   D: Face;
@@ -143,8 +142,7 @@ export class Cube {
   // ===== D =====
 
   moveD(): void {
-    this.D.color = rotateFaceClockwise(this.D.color);
-
+    this.D.color = rotateFaceCounterClockwise(this.D.color);
     const fRow = [this.F.color[6], this.F.color[7], this.F.color[8]];
     const rRow = [this.R.color[6], this.R.color[7], this.R.color[8]];
     const bRow = [this.B.color[6], this.B.color[7], this.B.color[8]];
