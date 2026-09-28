@@ -88,7 +88,7 @@ export class Cube {
   // ===== L =====
 
   moveL(): void {
-    this.L.color = rotateFaceClockwise(this.L.color);
+    this.L.color = rotateFaceCounterClockwise(this.L.color);  // ← seul changement
 
     const uCol = [this.U.color[0], this.U.color[3], this.U.color[6]];
     const fCol = [this.F.color[0], this.F.color[3], this.F.color[6]];
@@ -99,7 +99,7 @@ export class Cube {
     this.D.color[0] = bCol[2]; this.D.color[3] = bCol[1]; this.D.color[6] = bCol[0];
     this.F.color[0] = dCol[0]; this.F.color[3] = dCol[1]; this.F.color[6] = dCol[2];
     this.U.color[0] = fCol[0]; this.U.color[3] = fCol[1]; this.U.color[6] = fCol[2];
-  }
+}
 
   moveLPrime(): void {
     this.moveL();
