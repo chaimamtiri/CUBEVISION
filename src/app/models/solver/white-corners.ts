@@ -13,11 +13,22 @@ export function solveOneCorner(
   corner: CornerConfig,
   alreadySolved: CornerConfig[],
 ): SearchResult {
+  // Autorise U/D + toutes les faces latérales touchées par des coins PAS ENCORE résolus
+  // (y compris ce corner lui-même), jamais celles des coins déjà résolus — évite de les casser,
+  // mais laisse assez de marge de manœuvre pour vraiment atteindre le coin visé.
+  const solvedKeys = new Set(alreadySolved.map(c => c.key));
+  const remaining = CORNERS.filter(c => !solvedKeys.has(c.key));
+
+  const sideFaces = new Set<string>();
+  for (const c of remaining) {
+    sideFaces.add(c.sideA);
+    sideFaces.add(c.sideB);
+  }
+
   const allowedMoves: Move[] = [
     ...movesFor('U'),
     ...movesFor('D'),
-    ...movesFor(corner.sideA),
-    ...movesFor(corner.sideB),
+    ...Array.from(sideFaces).flatMap(f => movesFor(f as any)),
   ];
 
   const isGoal = (c: Cube) =>
