@@ -1,56 +1,172 @@
 import { Cube } from '../cube.model';
 import { Move } from '../move.util';
-import { isWhiteCrossSolved } from './white-cross';
-import { CORNERS, CornerConfig, isCornerSolved } from './corner-config';
-import { restrictedSearch, SearchResult } from './restricted-search';
+import { undoMoves } from './move.util';
 
-function movesFor(key: 'U' | 'D' | 'F' | 'R' | 'B' | 'L'): Move[] {
-  return [key, `${key}'` as Move, `${key}2` as Move];
+import { isWhiteCrossSolved } from './white-cross';
+
+import {
+  CORNERS,
+  CornerConfig,
+  isCornerSolved
+} from './corner-config';
+
+import {
+  restrictedSearch,
+  SearchResult
+} from './restricted-search';
+
+const ALL_MOVES: Move[] = [
+  'R', "R'", 'R2',
+  'L', "L'", 'L2',
+  'U', "U'", 'U2',
+  'D', "D'", 'D2',
+  'F', "F'", 'F2',
+  'B', "B'", 'B2',
+];
+
+function movesFor(key: string): Move[] {
+  return [key, `${key}'`, `${key}2`] as Move[];
 }
 
+// Résoudre un seul coin en préservant
+// la croix et les coins déjà résolus.
 export function solveOneCorner(
   cube: Cube,
   corner: CornerConfig,
-  alreadySolved: CornerConfig[],
+  alreadySolved: CornerConfig[]
 ): SearchResult {
-  // Autorise U/D + toutes les faces latérales touchées par des coins PAS ENCORE résolus
-  // (y compris ce corner lui-même), jamais celles des coins déjà résolus — évite de les casser,
-  // mais laisse assez de marge de manœuvre pour vraiment atteindre le coin visé.
-  const solvedKeys = new Set(alreadySolved.map(c => c.key));
-  const remaining = CORNERS.filter(c => !solvedKeys.has(c.key));
-
-  const sideFaces = new Set<string>();
-  for (const c of remaining) {
-    sideFaces.add(c.sideA);
-    sideFaces.add(c.sideB);
-  }
-
-  const allowedMoves: Move[] = [
-    ...movesFor('U'),
-    ...movesFor('D'),
-    ...Array.from(sideFaces).flatMap(f => movesFor(f as any)),
-  ];
 
   const isGoal = (c: Cube) =>
     isWhiteCrossSolved(c) &&
     isCornerSolved(c, corner) &&
-    alreadySolved.every(prev => isCornerSolved(c, prev));
+    alreadySolved.every(prev =>
+      isCornerSolved(c, prev)
+    );
 
-  return restrictedSearch(cube, isGoal, allowedMoves, 8);
+  const fastMoves: Move[] = [
+    ...movesFor('U'),
+    ...movesFor('D'),
+    ...movesFor(corner.sideA),
+    ...movesFor(corner.sideB),
+  ];
+
+  // Première recherche : mouvements limités.
+  const fast = restrictedSearch(cube, isGoal, fastMoves, 9, 6_000_000);
+
+  if (fast.success) {
+    return fast;
+  }
+
+  // Deuxième recherche : tous les mouvements.
+  return restrictedSearch(
+    cube,
+    isGoal,
+    ALL_MOVES,
+    8,
+    6_000_000
+  );
 }
 
-export function solveWhiteCorners(cube: Cube): SearchResult {
+// Essaie de résoudre les coins dans
+// l'ordre fourni en paramètre.
+function trySolveInOrder(
+  cube: Cube,
+  order: CornerConfig[]
+): SearchResult {
+
   const solution: Move[] = [];
   const solved: CornerConfig[] = [];
 
-  for (const corner of CORNERS) {
-    const result = solveOneCorner(cube, corner, solved);
+  // CORRECTION 1 : utiliser order.
+  for (const corner of order) {
+
+    console.log(
+      'Tentative du coin :',
+      corner.key
+    );
+
+    const result = solveOneCorner(
+      cube,
+      corner,
+      solved
+    );
+
+    console.log(
+      'Résultat :',
+      result.success,
+      'Raison :',
+      result.reason,
+      'Nœuds :',
+      result.nodesVisited
+    );
+
     if (!result.success) {
-      return { success: false, solution };
+
+      // CORRECTION 2 : restaurer le cube.
+      undoMoves(cube, solution);
+
+      return {
+        success: false,
+        solution: []
+      };
     }
+
     solution.push(...result.solution);
     solved.push(corner);
   }
 
-  return { success: true, solution };
+  return {
+    success: true,
+    solution
+  };
+}
+
+// Rotation d'un tableau.
+function rotate<T>(arr: T[], n: number): T[] {
+  return [
+    ...arr.slice(n),
+    ...arr.slice(0, n)
+  ];
+}
+
+// Fonction principale de résolution des coins.
+export function solveWhiteCorners(
+  cube: Cube
+): SearchResult {
+
+  const candidateOrders: CornerConfig[][] = [];
+
+  // Génération de huit ordres différents.
+  for (let i = 0; i < CORNERS.length; i++) {
+
+    const rotated = rotate(CORNERS, i);
+
+    candidateOrders.push(
+      rotated,
+      [...rotated].reverse()
+    );
+  }
+
+  // Essayer différents ordres.
+  for (const order of candidateOrders) {
+
+    console.log(
+      'Ordre testé :',
+      order.map(c => c.key).join(' → ')
+    );
+
+    const result = trySolveInOrder(
+      cube,
+      order
+    );
+
+    if (result.success) {
+      return result;
+    }
+  }
+
+  return {
+    success: false,
+    solution: []
+  };
 }

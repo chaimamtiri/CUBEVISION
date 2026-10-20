@@ -1,5 +1,6 @@
 import { Cube } from '../cube.model';
 import { Move } from '../move.util';
+import { Color } from '../color';
 
 const AXIS: Record<string, string> = {
   U: 'UD', D: 'UD', L: 'LR', R: 'LR', F: 'FB', B: 'FB',
@@ -23,10 +24,22 @@ const DISPATCH: Record<Move, (c: Cube) => void> = {
   'B': c => c.moveB(), "B'": c => c.moveBPrime(), 'B2': c => c.moveB2(),
 };
 
-export interface SearchResult {
-  success: boolean;
-  solution: Move[];
+const COLOR_CODE: Record<Color, string> = {
+  WHITE: 'w', YELLOW: 'y', RED: 'r', ORANGE: 'o', BLUE: 'b', GREEN: 'g',
+};
+
+function serialize(cube: Cube): string {
+  let out = '';
+  for (const k of ['U', 'D', 'L', 'R', 'F', 'B'] as const) {
+    for (const c of cube[k].color) out += COLOR_CODE[c];
+  }
+  return out;
 }
+
+const MAX_VISITED_ENTRIES = 300_000;
+const DEFAULT_NODE_BUDGET = 2_000_000; // plafond dur : garantit un temps d'exécution borné, même dans le pire cas
+
+class NodeBudgetExceeded extends Error {}
 
 function search(
   cube: Cube,
@@ -34,19 +47,46 @@ function search(
   allowedMoves: Move[],
   depthLeft: number,
   path: Move[],
-  lastAxis: string | null,
+  lastFace: string | null,
+  visited: Map<string, number>,
+  nodeCounter: { count: number; budget: number },
 ): boolean {
+  nodeCounter.count++;
+  if (nodeCounter.count > nodeCounter.budget) {
+    throw new NodeBudgetExceeded();
+  }
+
   if (isGoal(cube)) return true;
   if (depthLeft === 0) return false;
 
+  const key = `${serialize(cube)}:${lastFace ?? '-'}`;
+  const bestKnown = visited.get(key);
+  if (bestKnown !== undefined && bestKnown >= depthLeft) {
+    return false;
+  }
+  if (visited.size < MAX_VISITED_ENTRIES) {
+    visited.set(key, depthLeft);
+  }
+
   for (const move of allowedMoves) {
     const face = move[0];
-    if (AXIS[face] === lastAxis) continue;
+    if (lastFace !== null && AXIS[face] === AXIS[lastFace] && face <= lastFace) continue;
 
     DISPATCH[move](cube);
     path.push(move);
 
-    if (search(cube, isGoal, allowedMoves, depthLeft - 1, path, AXIS[face])) return true;
+    let found: boolean;
+    try {
+      found = search(cube, isGoal, allowedMoves, depthLeft - 1, path, face, visited, nodeCounter);
+    } catch (error) {
+      path.pop();
+      DISPATCH[INVERSE[move]](cube);
+      throw error;
+    }
+
+    if (found) {
+      return true;
+    }
 
     path.pop();
     DISPATCH[INVERSE[move]](cube);
@@ -54,19 +94,81 @@ function search(
   return false;
 }
 
-// Recherche générique : trouve une séquence (parmi allowedMoves) qui atteint isGoal.
-// Modifie `cube` en place ; le laisse dans l'état résolu si success = true.
+export interface SearchResult {
+  success: boolean;
+  solution: Move[];
+  reason?: 'depth-limit' | 'node-budget';
+  nodesVisited?: number;
+}
+
+
 export function restrictedSearch(
   cube: Cube,
   isGoal: (c: Cube) => boolean,
   allowedMoves: Move[],
   maxDepth = 8,
+  nodeBudget = DEFAULT_NODE_BUDGET,
 ): SearchResult {
-  for (let depth = 0; depth <= maxDepth; depth++) {
-    const path: Move[] = [];
-    if (search(cube, isGoal, allowedMoves, depth, path, null)) {
-      return { success: true, solution: path };
+
+  const nodeCounter = {
+    count: 0,
+    budget: nodeBudget
+  };
+
+  try {
+    for (let depth = 0; depth <= maxDepth; depth++) {
+
+      const path: Move[] = [];
+      const visited = new Map<string, number>();
+
+      if (
+        search(
+          cube,
+          isGoal,
+          allowedMoves,
+          depth,
+          path,
+          null,
+          visited,
+          nodeCounter
+        )
+      ) {
+        return {
+          success: true,
+          solution: path,
+          nodesVisited: nodeCounter.count
+        };
+      }
     }
+  } catch (e) {
+
+    if (e instanceof NodeBudgetExceeded) {
+      console.warn(
+        'Budget de recherche épuisé :',
+        nodeCounter.count,
+        'nœuds explorés'
+      );
+
+      return {
+        success: false,
+        solution: [],
+        reason: 'node-budget',
+        nodesVisited: nodeCounter.count
+      };
+    }
+
+    throw e;
   }
-  return { success: false, solution: [] };
+
+  console.warn(
+    'Aucune solution trouvée avant la profondeur',
+    maxDepth
+  );
+
+  return {
+    success: false,
+    solution: [],
+    reason: 'depth-limit',
+    nodesVisited: nodeCounter.count
+  };
 }
