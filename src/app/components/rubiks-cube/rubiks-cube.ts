@@ -223,35 +223,47 @@ rotateFace(move: Move): void {
   const face = move[0];
 
   // À cette étape : R, L et U uniquement
-  if (face !== 'R' && face !== 'L' && face !== 'U') {
-    console.warn('Mouvement non implémenté :', move);
-    return;
-  }
+  if (!['R', 'L', 'U', 'D'].includes(face)) {
+  console.warn('Mouvement non implémenté :', move);
+  return;
+}
 
   // Axe, couche et sens horaire
-  let axis: 'x' | 'y' | 'z';
-  let layer: number;
-  let baseAngle: number;
+  
+let axis: 'x' | 'y' | 'z';
+let layer: number;
+let baseAngle: number;
 
-  switch (face) {
-    case 'R':
-      axis = 'x';
-      layer = 1;
-      baseAngle = -Math.PI / 2;
-      break;
+switch (face) {
+  case 'R':
+    axis = 'x';
+    layer = 1;
+    baseAngle = -Math.PI / 2;
+    break;
 
-    case 'L':
-      axis = 'x';
-      layer = -1;
-      baseAngle = Math.PI / 2;
-      break;
+  case 'L':
+    axis = 'x';
+    layer = -1;
+    baseAngle = Math.PI / 2;
+    break;
 
-    case 'U':
-      axis = 'y';
-      layer = 1;
-      baseAngle = -Math.PI / 2;
-      break;
-  }
+  case 'U':
+    axis = 'y';
+    layer = 1;
+    baseAngle = -Math.PI / 2;
+    break;
+
+  case 'D':
+    axis = 'y';
+    layer = -1;
+    baseAngle = Math.PI / 2;
+    break;
+
+  default:
+    console.error('Face non prise en charge :', face);
+    return;
+}
+
 
   // Sélectionner les neuf cubelets de la couche
   const pieces = this.cubeGroup.children.filter(
@@ -307,6 +319,20 @@ rotateFace(move: Move): void {
     case 'U2':
       this.cube.moveU2();
       break;
+
+    
+case 'D':
+  this.cube.moveD();
+  break;
+
+case "D'":
+  this.cube.moveDPrime();
+  break;
+
+case 'D2':
+  this.cube.moveD2();
+  break;
+
 
     default:
       return;
