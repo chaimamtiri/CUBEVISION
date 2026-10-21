@@ -1,12 +1,5 @@
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnDestroy,
-  ViewChild
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, inject, ViewChild } from '@angular/core';
 
 import * as THREE from 'three';
 
@@ -35,8 +28,11 @@ interface ActiveRotation {
 })
 export class RubiksCubeComponent
   implements AfterViewInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
+  private lastScrambleUiState = '';
 
-  // Modèle logique partagé avec le cube 2D
+
+  // ModÃƒÂ¨le logique partagÃƒÂ© avec le cube 2D
   @Input({ required: true })
   cube!: Cube;
 
@@ -56,7 +52,7 @@ export class RubiksCubeComponent
   // Groupe temporaire pour animer une face
   private rotationGroup = new THREE.Group();
 
-  // État de l'animation
+  // Ãƒâ€°tat de l'animation
   private isRotating = false;
   private activeRotation?: ActiveRotation;
 
@@ -66,11 +62,11 @@ export class RubiksCubeComponent
   // Horloge THREE.JS
   private clock = new THREE.Clock();
 
-  // Géométrie commune aux 26 cubelets
+  // GÃƒÂ©omÃƒÂ©trie commune aux 26 cubelets
   private cubeletGeometry =
     new THREE.BoxGeometry(0.94, 0.94, 0.94);
 
-  // Matériaux
+  // MatÃƒÂ©riaux
   private materials = {
     white: new THREE.MeshBasicMaterial({
       color: 0xffffff
@@ -120,11 +116,11 @@ export class RubiksCubeComponent
     const width = element.clientWidth || 600;
     const height = element.clientHeight || 400;
 
-    // Scène
+    // ScÃƒÂ¨ne
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x111827);
 
-    // Caméra
+    // CamÃƒÂ©ra
     this.camera = new THREE.PerspectiveCamera(
       60,
       width / height,
@@ -153,7 +149,7 @@ export class RubiksCubeComponent
 
     element.appendChild(this.renderer.domElement);
 
-    // Contrôle de caméra
+    // ContrÃƒÂ´le de camÃƒÂ©ra
     this.controls = new OrbitControls(
       this.camera,
       this.renderer.domElement
@@ -171,11 +167,11 @@ export class RubiksCubeComponent
     // Construction des 26 cubelets
     this.createRubiksCube();
 
-    // Ajout des groupes à la scène
+    // Ajout des groupes ÃƒÂ  la scÃƒÂ¨ne
     this.scene.add(this.cubeGroup);
     this.scene.add(this.rotationGroup);
 
-    // Adapter le rendu à la taille du conteneur
+    // Adapter le rendu ÃƒÂ  la taille du conteneur
     this.resizeObserver = new ResizeObserver(() => {
 
       const w = element.clientWidth;
@@ -204,6 +200,14 @@ export class RubiksCubeComponent
       );
 
       this.updateRotation(delta);
+
+      const uiState =
+        `${this.scrambleCompleted}|${this.scrambleTotal}|${this.currentScrambleMove ?? ''}`;
+
+      if (uiState !== this.lastScrambleUiState) {
+        this.lastScrambleUiState = uiState;
+        this.cdr.detectChanges();
+      }
 
       this.controls?.update();
 
@@ -241,7 +245,7 @@ export class RubiksCubeComponent
     }
 
     console.log(
-      'Cubelets créés :',
+      'Cubelets crÃƒÂ©ÃƒÂ©s :',
       this.cubeGroup.children.length
     );
   }
@@ -294,7 +298,7 @@ export class RubiksCubeComponent
 
     const face = move[0];
 
-    // Vérifier que la face est implémentée
+    // VÃƒÂ©rifier que la face est implÃƒÂ©mentÃƒÂ©e
     if (!['R', 'L', 'U', 'D', 'F', 'B'].includes(face)) {
       console.warn('Mouvement non reconnu :', move);
       return;
@@ -304,7 +308,7 @@ export class RubiksCubeComponent
     let layer: number;
     let baseAngle: number;
 
-    // Déterminer l'axe et la couche
+    // DÃƒÂ©terminer l'axe et la couche
     switch (face) {
 
       case 'R':
@@ -348,23 +352,23 @@ export class RubiksCubeComponent
         return;
     }
 
-    // Vérification du groupe temporaire
+    // VÃƒÂ©rification du groupe temporaire
     if (this.rotationGroup.children.length !== 0) {
       console.error(
-        'Le groupe de rotation contient encore des pièces'
+        'Le groupe de rotation contient encore des piÃƒÂ¨ces'
       );
       return;
     }
 
     // IMPORTANT :
-    // Réinitialiser la transformation AVANT
-    // de préparer une nouvelle animation.
+    // RÃƒÂ©initialiser la transformation AVANT
+    // de prÃƒÂ©parer une nouvelle animation.
     this.rotationGroup.position.set(0, 0, 0);
     this.rotationGroup.rotation.set(0, 0, 0);
     this.rotationGroup.scale.set(1, 1, 1);
     this.rotationGroup.updateMatrixWorld(true);
 
-    // Sélection des neuf cubelets
+    // SÃƒÂ©lection des neuf cubelets
     const pieces = this.cubeGroup.children.filter(
       piece =>
         Math.round(piece.position[axis]) === layer
@@ -377,7 +381,7 @@ export class RubiksCubeComponent
       return;
     }
 
-    // Déterminer le nombre de quarts de tour
+    // DÃƒÂ©terminer le nombre de quarts de tour
     const turns = move.endsWith('2')
       ? 2
       : move.endsWith("'")
@@ -386,7 +390,7 @@ export class RubiksCubeComponent
 
     const angle = baseAngle * turns;
 
-    // Mettre à jour le cube logique
+    // Mettre ÃƒÂ  jour le cube logique
     switch (move) {
 
       case 'R':
@@ -471,12 +475,12 @@ export class RubiksCubeComponent
     // Actualiser les matrices mondiales
     this.scene.updateMatrixWorld(true);
 
-    // Attacher les neuf pièces au groupe temporaire
+    // Attacher les neuf piÃƒÂ¨ces au groupe temporaire
     for (const piece of pieces) {
       this.rotationGroup.attach(piece);
     }
 
-    // Préparer l'animation
+    // PrÃƒÂ©parer l'animation
     this.activeRotation = {
       elapsed: 0,
       duration: Math.abs(turns) === 2 ? 0.5 : 0.35,
@@ -525,13 +529,13 @@ export class RubiksCubeComponent
       return;
     }
 
-    // Appliquer précisément l'angle final
+    // Appliquer prÃƒÂ©cisÃƒÂ©ment l'angle final
     this.rotationGroup.rotation[rotation.axis] =
       rotation.angle;
 
     // IMPORTANT :
-    // Mettre à jour toutes les matrices
-    // avant de détacher les cubelets.
+    // Mettre ÃƒÂ  jour toutes les matrices
+    // avant de dÃƒÂ©tacher les cubelets.
     this.scene.updateMatrixWorld(true);
 
     // Replacer les neuf cubelets dans cubeGroup
@@ -550,7 +554,7 @@ export class RubiksCubeComponent
       // Normaliser l'orientation
       piece.quaternion.normalize();
 
-      // Mettre à jour les coordonnées
+      // Mettre ÃƒÂ  jour les coordonnÃƒÂ©es
       piece.userData['gridPosition'] = {
         x: piece.position.x,
         y: piece.position.y,
@@ -560,7 +564,7 @@ export class RubiksCubeComponent
 
     // CORRECTION :
     // Vider les transformations du groupe
-    // après le retour des cubelets.
+    // aprÃƒÂ¨s le retour des cubelets.
     this.rotationGroup.position.set(0, 0, 0);
     this.rotationGroup.rotation.set(0, 0, 0);
     this.rotationGroup.scale.set(1, 1, 1);
@@ -573,22 +577,22 @@ export class RubiksCubeComponent
       this.scrambleCompleted++;
     }
 
-    // Vérification de l'intégrité du cube
+    // VÃƒÂ©rification de l'intÃƒÂ©gritÃƒÂ© du cube
     this.checkCubeIntegrity();
 
-    console.log('Animation terminée');
+    console.log('Animation terminÃƒÂ©e');
 
     // Passer au mouvement suivant du Scramble
     if (this.pendingMoves.length > 0) {
       this.playNextMove();
     } else if (this.currentScrambleMove !== null) {
       this.currentScrambleMove = null;
-      console.log('Scramble terminé !');
+      console.log('Scramble terminÃƒÂ© !');
 }
   }
 
   // =====================================
-  // 5. VÉRIFIER L'INTÉGRITÉ DU CUBE
+  // 5. VÃƒâ€°RIFIER L'INTÃƒâ€°GRITÃƒâ€° DU CUBE
   // =====================================
 
   private checkCubeIntegrity(): void {
@@ -601,7 +605,7 @@ export class RubiksCubeComponent
       );
     }
 
-    // Vérifier l'unicité des 26 positions
+    // VÃƒÂ©rifier l'unicitÃƒÂ© des 26 positions
     const positions = new Set<string>();
 
     for (const piece of this.cubeGroup.children) {
@@ -626,7 +630,7 @@ export class RubiksCubeComponent
 
       if (positions.has(key)) {
         console.error(
-          'Deux cubelets occupent la même position :',
+          'Deux cubelets occupent la mÃƒÂªme position :',
           key
         );
       }
@@ -648,7 +652,7 @@ export class RubiksCubeComponent
 
   startScramble(): void {
 
-    // Empêcher deux Scrambles simultanés
+    // EmpÃƒÂªcher deux Scrambles simultanÃƒÂ©s
     if (
       this.isRotating ||
       this.pendingMoves.length > 0 ||
@@ -657,7 +661,7 @@ export class RubiksCubeComponent
       return;
     }
 
-    // Générer 20 mouvements
+    // GÃƒÂ©nÃƒÂ©rer 20 mouvements
     this.pendingMoves = generateScramble(20);
     this.scrambleTotal = this.pendingMoves.length;
     this.scrambleCompleted = 0;
@@ -669,7 +673,7 @@ export class RubiksCubeComponent
       this.pendingMoves.join(' ')
     );
 
-    // Démarrer l'animation
+    // DÃƒÂ©marrer l'animation
     this.playNextMove();
   }
 
@@ -679,7 +683,7 @@ private playNextMove(): void {
 
   if (!move) {
     this.currentScrambleMove = null;
-    console.log('Scramble terminé !');
+    console.log('Scramble terminÃƒÂ© !');
     return;
   }
 
@@ -716,3 +720,4 @@ private playNextMove(): void {
     this.renderer?.domElement.remove();
   }
 }
+
