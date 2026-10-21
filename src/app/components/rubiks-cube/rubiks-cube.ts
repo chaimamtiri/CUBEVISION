@@ -223,7 +223,7 @@ rotateFace(move: Move): void {
   const face = move[0];
 
   // Vérifier que la face est implémentée
-  if (!['R', 'L', 'U', 'D', 'F'].includes(face)) {
+  if (!['R', 'L', 'U', 'D', 'F', 'B'].includes(face)) {
     console.warn('Mouvement non implémenté :', move);
     return;
   }
@@ -262,6 +262,11 @@ rotateFace(move: Move): void {
       axis = 'z';
       layer = 1;
       baseAngle = -Math.PI / 2;
+      break;
+    case 'B':
+      axis = 'z';
+      layer = -1;
+      baseAngle = Math.PI / 2;
       break;
 
     default:
@@ -347,6 +352,17 @@ case "F'":
 
 case 'F2':
   this.cube.moveF2();
+  break;
+  case 'B':
+  this.cube.moveB();
+  break;
+
+case "B'":
+  this.cube.moveBPrime();
+  break;
+
+case 'B2':
+  this.cube.moveB2();
   break;
 
 
