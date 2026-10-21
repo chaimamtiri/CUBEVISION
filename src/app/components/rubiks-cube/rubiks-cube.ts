@@ -219,50 +219,55 @@ rotateFace(move: Move): void {
     return;
   }
 
-  // Identifier la face concernée
+  // Identifier la face
   const face = move[0];
 
-  // À cette étape : R, L et U uniquement
-  if (!['R', 'L', 'U', 'D'].includes(face)) {
-  console.warn('Mouvement non implémenté :', move);
-  return;
-}
+  // Vérifier que la face est implémentée
+  if (!['R', 'L', 'U', 'D', 'F'].includes(face)) {
+    console.warn('Mouvement non implémenté :', move);
+    return;
+  }
 
   // Axe, couche et sens horaire
-  
-let axis: 'x' | 'y' | 'z';
-let layer: number;
-let baseAngle: number;
+  let axis: 'x' | 'y' | 'z';
+  let layer: number;
+  let baseAngle: number;
 
-switch (face) {
-  case 'R':
-    axis = 'x';
-    layer = 1;
-    baseAngle = -Math.PI / 2;
-    break;
+  switch (face) {
+    case 'R':
+      axis = 'x';
+      layer = 1;
+      baseAngle = -Math.PI / 2;
+      break;
 
-  case 'L':
-    axis = 'x';
-    layer = -1;
-    baseAngle = Math.PI / 2;
-    break;
+    case 'L':
+      axis = 'x';
+      layer = -1;
+      baseAngle = Math.PI / 2;
+      break;
 
-  case 'U':
-    axis = 'y';
-    layer = 1;
-    baseAngle = -Math.PI / 2;
-    break;
+    case 'U':
+      axis = 'y';
+      layer = 1;
+      baseAngle = -Math.PI / 2;
+      break;
 
-  case 'D':
-    axis = 'y';
-    layer = -1;
-    baseAngle = Math.PI / 2;
-    break;
+    case 'D':
+      axis = 'y';
+      layer = -1;
+      baseAngle = Math.PI / 2;
+      break;
 
-  default:
-    console.error('Face non prise en charge :', face);
-    return;
-}
+    case 'F':
+      axis = 'z';
+      layer = 1;
+      baseAngle = -Math.PI / 2;
+      break;
+
+    default:
+      console.error('Face inconnue :', face);
+      return;
+  }
 
 
   // Sélectionner les neuf cubelets de la couche
@@ -331,6 +336,17 @@ case "D'":
 
 case 'D2':
   this.cube.moveD2();
+  break;
+  case 'F':
+  this.cube.moveF();
+  break;
+
+case "F'":
+  this.cube.moveFPrime();
+  break;
+
+case 'F2':
+  this.cube.moveF2();
   break;
 
 
