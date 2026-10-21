@@ -95,6 +95,8 @@ export class RubiksCubeComponent
     })
   };
 
+  scrambleNotation = '';
+
   // =====================================
   // 1. INITIALISATION THREE.JS
   // =====================================
@@ -644,6 +646,7 @@ export class RubiksCubeComponent
 
     // Générer 20 mouvements
     this.pendingMoves = generateScramble(20);
+    this.scrambleNotation = this.pendingMoves.join(' ');
 
     console.log(
       'Scramble :',
