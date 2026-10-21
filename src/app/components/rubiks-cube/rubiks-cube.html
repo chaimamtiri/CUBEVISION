@@ -129,6 +129,14 @@
       B2
     </button>
 
+        <!-- RESET -->
+    <button
+      type="button"
+      class="reset-button"
+      [disabled]="isScrambling"
+      (click)="resetCube()">
+      Reset
+    </button>
     <!-- SCRAMBLE -->
     <button type="button"
             class="scramble-button"

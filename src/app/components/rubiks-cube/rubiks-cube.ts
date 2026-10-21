@@ -282,6 +282,8 @@ export class RubiksCubeComponent
       z
     };
 
+    cubelet.userData['homePosition'] = { x, y, z };
+
     return cubelet;
   }
 
@@ -696,6 +698,69 @@ private playNextMove(): void {
   // 7. NETTOYAGE
   // =====================================
 
+    // =====================================
+  // RESET : revenir au cube resolu
+  // =====================================
+
+  resetCube(): void {
+
+    // Interdire Reset pendant une animation
+    if (
+      this.isRotating ||
+      this.activeRotation ||
+      this.pendingMoves.length > 0
+    ) {
+      return;
+    }
+
+    // Restaurer le modele logique sans
+    // remplacer sa reference partagee
+    Object.assign(this.cube, new Cube());
+
+    // Restaurer les 26 cubelets 3D
+    for (const piece of this.cubeGroup.children) {
+
+      const home = piece.userData['homePosition'] as {
+        x: number;
+        y: number;
+        z: number;
+      };
+
+      piece.position.set(home.x, home.y, home.z);
+
+      // Orientation initiale
+      piece.quaternion.identity();
+
+      piece.scale.set(1, 1, 1);
+
+      piece.userData['gridPosition'] = {
+        x: home.x,
+        y: home.y,
+        z: home.z
+      };
+    }
+
+    // Remettre le groupe temporaire au repos
+    this.rotationGroup.position.set(0, 0, 0);
+    this.rotationGroup.rotation.set(0, 0, 0);
+    this.rotationGroup.scale.set(1, 1, 1);
+
+    // Reinitialiser le Scramble
+    this.pendingMoves = [];
+    this.scrambleNotation = '';
+    this.scrambleTotal = 0;
+    this.scrambleCompleted = 0;
+    this.currentScrambleMove = null;
+
+    this.scene.updateMatrixWorld(true);
+
+    this.checkCubeIntegrity();
+
+    // Actualiser Angular
+    this.cdr.detectChanges();
+
+    console.log('Cube reinitialise !');
+  }
   ngOnDestroy(): void {
 
     this.pendingMoves = [];
