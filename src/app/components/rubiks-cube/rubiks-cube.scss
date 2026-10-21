@@ -67,3 +67,28 @@
     overflow-wrap: anywhere;
   }
 }
+
+
+.scramble-progress {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f1f5f9;
+
+  .scramble-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  p {
+    margin: 12px 0;
+  }
+
+  progress {
+    width: 100%;
+    height: 14px;
+    accent-color: #2563eb;
+  }
+}

@@ -45,4 +45,38 @@
   </div>
 }
 
+
+@if (scrambleTotal > 0) {
+  <div class="scramble-progress">
+
+    <div class="scramble-progress-header">
+      <strong>
+        @if (currentScrambleMove !== null) {
+          Scramble en cours
+        } @else {
+          Scramble terminé !
+        }
+      </strong>
+
+      <span>
+        {{ scrambleCompleted }} / {{ scrambleTotal }}
+      </span>
+    </div>
+
+    @if (currentScrambleMove !== null) {
+      <p>
+        Mouvement actuel :
+        <strong>{{ currentScrambleMove }}</strong>
+      </p>
+    }
+
+    <progress
+      [value]="scrambleCompleted"
+      [max]="scrambleTotal">
+    </progress>
+
+  </div>
+}
+
+
 </div>

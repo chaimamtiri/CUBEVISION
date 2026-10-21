@@ -96,6 +96,9 @@ export class RubiksCubeComponent
   };
 
   scrambleNotation = '';
+  scrambleTotal = 0;
+  scrambleCompleted = 0;
+  currentScrambleMove: Move | null = null;
 
   // =====================================
   // 1. INITIALISATION THREE.JS
@@ -562,6 +565,9 @@ export class RubiksCubeComponent
     // Terminer l'animation
     this.activeRotation = undefined;
     this.isRotating = false;
+    if (this.currentScrambleMove !== null) {
+      this.scrambleCompleted++;
+    }
 
     // Vérification de l'intégrité du cube
     this.checkCubeIntegrity();
@@ -571,7 +577,10 @@ export class RubiksCubeComponent
     // Passer au mouvement suivant du Scramble
     if (this.pendingMoves.length > 0) {
       this.playNextMove();
-    }
+    } else if (this.currentScrambleMove !== null) {
+      this.currentScrambleMove = null;
+      console.log('Scramble terminé !');
+}
   }
 
   // =====================================
@@ -646,6 +655,9 @@ export class RubiksCubeComponent
 
     // Générer 20 mouvements
     this.pendingMoves = generateScramble(20);
+    this.scrambleTotal = this.pendingMoves.length;
+    this.scrambleCompleted = 0;
+    this.currentScrambleMove = null;
     this.scrambleNotation = this.pendingMoves.join(' ');
 
     console.log(
@@ -657,17 +669,20 @@ export class RubiksCubeComponent
     this.playNextMove();
   }
 
-  private playNextMove(): void {
+  
+private playNextMove(): void {
+  const move = this.pendingMoves.shift();
 
-    const move = this.pendingMoves.shift();
-
-    if (!move) {
-      console.log('Scramble terminé !');
-      return;
-    }
-
-    this.rotateFace(move);
+  if (!move) {
+    this.currentScrambleMove = null;
+    console.log('Scramble terminé !');
+    return;
   }
+
+  this.currentScrambleMove = move;
+  this.rotateFace(move);
+}
+
 
   // =====================================
   // 7. NETTOYAGE
