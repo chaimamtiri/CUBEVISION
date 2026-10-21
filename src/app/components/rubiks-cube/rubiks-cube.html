@@ -1,82 +1,198 @@
 
-<div class="cube-container" #canvasContainer></div>
+<div class="rubiks-cube-container">
 
-<div class="move-controls">
+  <h2>Rubik's Cube 3D — Development Preview</h2>
 
-  <!-- Face droite -->
-  <button type="button" (click)="rotateFace('R')">R</button>
-  <button type="button" (click)="rotateFace(&quot;R'&quot;)">R'</button>
-  <button type="button" (click)="rotateFace('R2')">R2</button>
+  <!-- ===================================== -->
+  <!-- 1. AFFICHAGE DU CUBE 3D -->
+  <!-- ===================================== -->
 
-  <!-- Face gauche -->
-  <button type="button" (click)="rotateFace('L')">L</button>
-  <button type="button" (click)="rotateFace(&quot;L'&quot;)">L'</button>
-  <button type="button" (click)="rotateFace('L2')">L2</button>
+  <div #canvasContainer class="canvas-container"></div>
 
-  <!-- Face supérieure -->
-  <button type="button" (click)="rotateFace('U')">U</button>
-  <button type="button" (click)="rotateFace(&quot;U'&quot;)">U'</button>
-  <button type="button" (click)="rotateFace('U2')">U2</button>
+  <!-- ===================================== -->
+  <!-- 2. BOUTONS DE ROTATION -->
+  <!-- ===================================== -->
 
-  
-<!-- Face inférieure -->
-<button type="button" (click)="rotateFace('D')">D</button>
-<button type="button" (click)="rotateFace(&quot;D'&quot;)">D'</button>
-<button type="button" (click)="rotateFace('D2')">D2</button>
+  <div class="move-controls">
 
+    <!-- FACE R : RIGHT -->
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('R')">
+      R
+    </button>
 
-<!-- Face avant -->
-<button type="button" (click)="rotateFace('F')">F</button>
-<button type="button" (click)="rotateFace(&quot;F'&quot;)">F'</button>
-<button type="button" (click)="rotateFace('F2')">F2</button>
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace(&quot;R'&quot;)">
+      R'
+    </button>
 
-<button type="button" (click)="rotateFace('B')">B</button>
-<button type="button" (click)="rotateFace(&quot;B'&quot;)">B'</button>
-<button type="button" (click)="rotateFace('B2')">B2</button>
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('R2')">
+      R2
+    </button>
 
-<button type="button" (click)="startScramble()">
-  🔀 Scramble
-</button>
+    <!-- FACE L : LEFT -->
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('L')">
+      L
+    </button>
 
-@if (scrambleNotation) {
-  <div class="scramble-display">
-    <strong>Scramble :</strong>
-    <p>{{ scrambleNotation }}</p>
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace(&quot;L'&quot;)">
+      L'
+    </button>
+
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('L2')">
+      L2
+    </button>
+
+    <!-- FACE U : UP -->
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('U')">
+      U
+    </button>
+
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace(&quot;U'&quot;)">
+      U'
+    </button>
+
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('U2')">
+      U2
+    </button>
+
+    <!-- FACE D : DOWN -->
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('D')">
+      D
+    </button>
+
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace(&quot;D'&quot;)">
+      D'
+    </button>
+
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('D2')">
+      D2
+    </button>
+
+    <!-- FACE F : FRONT -->
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('F')">
+      F
+    </button>
+
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace(&quot;F'&quot;)">
+      F'
+    </button>
+
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('F2')">
+      F2
+    </button>
+
+    <!-- FACE B : BACK -->
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('B')">
+      B
+    </button>
+
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace(&quot;B'&quot;)">
+      B'
+    </button>
+
+    <button type="button"
+            [disabled]="isScrambling"
+            (click)="rotateFace('B2')">
+      B2
+    </button>
+
+    <!-- SCRAMBLE -->
+    <button type="button"
+            class="scramble-button"
+            [disabled]="isScrambling"
+            (click)="startScramble()">
+      🔀 Scramble
+    </button>
+
   </div>
-}
 
+  <!-- ===================================== -->
+  <!-- 3. AFFICHAGE DE LA NOTATION SCRAMBLE -->
+  <!-- ===================================== -->
 
-@if (scrambleTotal > 0) {
-  <div class="scramble-progress">
+  @if (scrambleNotation) {
 
-    <div class="scramble-progress-header">
-      <strong>
-        @if (currentScrambleMove !== null) {
-          Scramble en cours
-        } @else {
-          Scramble terminé !
-        }
-      </strong>
+    <div class="scramble-display">
+      <strong>Scramble :</strong>
 
-      <span>
-        {{ scrambleCompleted }} / {{ scrambleTotal }}
-      </span>
+      <p>{{ scrambleNotation }}</p>
     </div>
 
-    @if (currentScrambleMove !== null) {
-      <p>
-        Mouvement actuel :
-        <strong>{{ currentScrambleMove }}</strong>
-      </p>
-    }
+  }
 
-    <progress
-      [value]="scrambleCompleted"
-      [max]="scrambleTotal">
-    </progress>
+  <!-- ===================================== -->
+  <!-- 4. PROGRESSION DU SCRAMBLE -->
+  <!-- ===================================== -->
 
-  </div>
-}
+  @if (scrambleTotal > 0) {
 
+    <div class="scramble-progress">
+
+      <div class="scramble-progress-header">
+
+        <strong>
+          @if (currentScrambleMove !== null) {
+            Scramble en cours
+          } @else {
+            Scramble terminé !
+          }
+        </strong>
+
+        <span>
+          {{ scrambleCompleted }} / {{ scrambleTotal }}
+        </span>
+
+      </div>
+
+      @if (currentScrambleMove !== null) {
+
+        <p>
+          Mouvement actuel :
+          <strong>{{ currentScrambleMove }}</strong>
+        </p>
+
+      }
+
+      <progress
+        [value]="scrambleCompleted"
+        [max]="scrambleTotal">
+      </progress>
+
+    </div>
+
+  }
 
 </div>

@@ -100,6 +100,10 @@ export class RubiksCubeComponent
   scrambleCompleted = 0;
   currentScrambleMove: Move | null = null;
 
+  get isScrambling(): boolean {
+  return this.currentScrambleMove !== null;
+}
+
   // =====================================
   // 1. INITIALISATION THREE.JS
   // =====================================
