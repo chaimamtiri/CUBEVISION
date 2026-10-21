@@ -70,7 +70,23 @@ function search(
 
   for (const move of allowedMoves) {
     const face = move[0];
-    if (lastFace !== null && AXIS[face] === AXIS[lastFace] && face <= lastFace) continue;
+    if (lastFace !== null) {
+
+    // Deux mouvements successifs sur la meme face
+    // peuvent toujours etre simplifies.
+    if (face === lastFace) {
+      continue;
+    }
+
+    // Pour les faces opposees d'un meme axe,
+    // ne garder qu'un seul ordre canonique.
+    if (
+      AXIS[face] === AXIS[lastFace] &&
+      face < lastFace
+    ) {
+      continue;
+    }
+  }
 
     DISPATCH[move](cube);
     path.push(move);
